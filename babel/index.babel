@@ -3,14 +3,21 @@ class Calculator extends React.Component {
     super(props);
     
     this.state = {
-      initialValue: "0"
-    }
+      initialValue: '0'
+    };
   }
   
   render () {
     return (
       <div>
-        
+        <div className='container'>
+        <div className="title">JavaScript Calculator</div>
+        <div className="calculator">
+          <OutputScreen currentValue={this.state.initialValue} />
+          <Buttons>
+          </Buttons>
+        </div>
+        </div>
       </div>
     )
   }
@@ -44,9 +51,9 @@ class Buttons extends React.Component {
 
 class OutputScreen extends React.Component {
   render () {
-    return 
-      <div id="display">{this.props.initialValue}</div>
-    
+    return (
+      <div id="display">{this.props.currentValue}</div>
+    )
   }
 }
 
