@@ -1,0 +1,39 @@
+html {
+  height: 100%;
+}
+
+body {
+  font-family: Georgia, serif;
+  background: #f5eff7;
+}
+
+.container {
+  width: 50%;
+  margin: 30px auto;
+}
+
+#app {
+  height: 100vh;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  text-align: center;
+}
+
+.calculator {
+  width: 400px;
+  height: 700px;
+  background-color: #d0ede3;
+  border-radius: 15px;
+}
+
+#display {
+  width:350px;
+  height: 150px;
+  background-color: #f9fffc;
+  text-align: right;
+  
+}
