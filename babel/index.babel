@@ -3,20 +3,55 @@ class Calculator extends React.Component {
     super(props);
     
     this.state = {
-      initialValue: '0'
+      inputValue: '0',
+      prevVal: '0',
+      formula: ''
     };
+    
+    this.initialize = this.initialize.bind(this);
+    this.handleNumbers = this.handleNumbers(this);
+    this.handleOperators = this.handleOperators(this);
   }
+  
+    initialize() {
+      this.setState ({
+        inputValue: '0',
+        prevVal: '0',
+        formula: '',
+        lastClicked: ''
+      });
+    }
+  
+    handleNumbers(e) {
+      if(this.state === true) {
+        this.setState ({
+          inputValue: e.target.value,
+          formula: e.target.value != '0' ? e.target.value : ''
+        });
+      }
+    }
+  
+    handleOperators(e) {
+      if(this.state === true) {
+        this.setState ({
+          inputValue: e.target.value
+        });
+      }
+      
+    }
   
   render () {
     return (
       <div>
-        <div className='container'>
-        <div className="title">JavaScript Calculator</div>
-        <div className="calculator">
-          <OutputScreen currentValue={this.state.initialValue} />
-          <Buttons>
-          </Buttons>
-        </div>
+         <div className="title"><h1>JavaScript Calculator</h1></div>
+         <div className="calculator">
+          <div className="displayScreen">
+           <FormulaScreen formula={this.state.formula.replace(/x/g, '.')} />
+           <OutputScreen currentValue={this.state.inputValue} />
+           </div>
+           <Buttons initialize={this.initialize} numbers={this.handleNumbers} operators={this.handleOperators}>
+             
+           </Buttons>
         </div>
       </div>
     )
@@ -27,23 +62,24 @@ class Buttons extends React.Component {
   render () {
     return (
       <div>
-        <button id="clear" value="C">C</button>
-        <button id="divide" value="/">/</button>
-        <button id="seven" value="7">7</button>
-        <button id="eight" value="8">8</button>
-        <button id="nine" value="9">9</button>
-        <button id="multiply" value="x">x</button>
-        <button id="four" value="4">4</button>
-        <button id="five" value="5">5</button>
-        <button id="six" value="6">6</button>
-        <button id="subtract" value="-">-</button>
-        <button id="one" value="1">1</button>         
-        <button id="two" value="2">2</button>
-        <button id="three" value="3">3</button>
-        <button id="add" value="+">+</button>
-        <button id="zero" value="0">0</button>
+        <button id="clear" value="CE" className="clearBtn">CE</button>
+        <button id="clear" value="C" className="clearBtn" onClick={this.props.initialize}>C</button>
+        <button id="divide" value="/" onClick={this.props.operators}>/</button>
+        <button id="seven" value="7" onClick={this.props.numbers}>7</button>
+        <button id="eight" value="8" onClick={this.props.numbers}>8</button>
+        <button id="nine" value="9" onClick={this.props.numbers}>9</button>
+        <button id="multiply" value="x" nClick={this.props.operators}>x</button>
+        <button id="four" value="4" onClick={this.props.numbers}>4</button>
+        <button id="five" value="5" onClick={this.props.numbers}>5</button>
+        <button id="six" value="6" onClick={this.props.numbers}>6</button>
+        <button id="subtract" value="-" nClick={this.props.operators}>-</button>
+        <button id="one" value="1" onClick={this.props.numbers}>1</button>         
+        <button id="two" value="2" onClick={this.props.numbers}>2</button>
+        <button id="three" value="3" onClick={this.props.numbers}>3</button>
+        <button id="add" value="+" nClick={this.props.operators}>+</button>
+        <button id="zero" value="0" onClick={this.props.numbers}>0</button>
         <button id="decimal" value=".">.</button>
-        <button id="equals" value="=">=</button>   
+        <button id="equals" value="=" className="equalBtn" nClick={this.props.operators}>=</button>   
       </div>
     )
   }
@@ -53,6 +89,14 @@ class OutputScreen extends React.Component {
   render () {
     return (
       <div id="display">{this.props.currentValue}</div>
+    )
+  }
+}
+
+class FormulaScreen extends React.Component {
+  render () {
+    return (
+      <div className="formulaDisplay">{this.props.formula}</div>
     )
   }
 }
