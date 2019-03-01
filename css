@@ -7,11 +7,6 @@ body {
   background: #f5eff7;
 }
 
-.container {
-  width: 50%;
-  margin: 30px auto;
-}
-
 #app {
   height: 100vh;
   display:flex;
@@ -25,15 +20,50 @@ body {
 
 .calculator {
   width: 400px;
-  height: 700px;
+  height:550px;
   background-color: #d0ede3;
   border-radius: 15px;
+  padding: 5px;
+}
+
+.displayScreen {
+  width:400px;
+  height: 100px;
+  background-color: #f9fffc;
+}
+
+.formulaDisplay {
+  height: 20px;
+  font-size: 20px;
+  text-align: center;
+  vertical-align: text-top;
+  line-height: 20px;
 }
 
 #display {
-  width:350px;
-  height: 150px;
-  background-color: #f9fffc;
   text-align: right;
-  
+  line-height: 50px;
+  font-size: 40px;
+}
+
+button {
+  height: 80px;
+  width: 100px;
+  font-size: 25px;
+  outline: 1px solid grey;
+  position: relative;
+}
+
+button:hover {
+  color: white;
+  outline: .05em solid black;
+  z-index: 3;
+}
+
+.clearBtn {
+  width: 150px;
+}
+
+.equalBtn {
+  width: 200px;
 }
