@@ -9,8 +9,10 @@ class Calculator extends React.Component {
     };
     
     this.initialize = this.initialize.bind(this);
-    this.handleNumbers = this.handleNumbers(this);
-    this.handleOperators = this.handleOperators(this);
+    this.handleNumbers = this.handleNumbers.bind(this);
+    this.handleOperators = this.handleOperators.bind(this);
+    this.handleDecimal = this.handleDecimal.bind(this);
+    this.digitLimit = this.digitLimit.bind(this);
   }
   
     initialize() {
@@ -21,24 +23,41 @@ class Calculator extends React.Component {
         lastClicked: ''
       });
     }
+    
+    digitLimit() {
+      this.setState ({
+        inputValue: 'Exceed digit limit',
+        prevVal: this.state.inputValue
+      });
+      setTimeout(() => this.setState({inputValue: this.state.prevVal}), 1000);
+    }
   
     handleNumbers(e) {
-      if(this.state === true) {
-        this.setState ({
+      if(this.state.inputValue.length > 16) {
+        this.digitLimit();
+      } else { 
+          this.setState ({
           inputValue: e.target.value,
           formula: e.target.value != '0' ? e.target.value : ''
         });
       }
+      
+      this.setState ({
+        inputValue: this.state.inputValue + e.target.value
+      })
     }
   
     handleOperators(e) {
-      if(this.state === true) {
+      
         this.setState ({
           inputValue: e.target.value
         });
-      }
-      
+          
     }
+  
+    handleDecimal(e) {
+      
+    } 
   
   render () {
     return (
@@ -46,10 +65,10 @@ class Calculator extends React.Component {
          <div className="title"><h1>JavaScript Calculator</h1></div>
          <div className="calculator">
           <div className="displayScreen">
-           <FormulaScreen formula={this.state.formula.replace(/x/g, '.')} />
+           <FormulaScreen formula={this.state.formula.replace(/x/g, '·')} />
            <OutputScreen currentValue={this.state.inputValue} />
            </div>
-           <Buttons initialize={this.initialize} numbers={this.handleNumbers} operators={this.handleOperators}>
+           <Buttons numbers={this.handleNumbers} operators={this.handleOperators} initialize={this.initialize}>
              
            </Buttons>
         </div>
