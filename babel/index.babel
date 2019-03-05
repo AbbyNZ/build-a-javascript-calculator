@@ -9,10 +9,12 @@ class Calculator extends React.Component {
     };
     
     this.initialize = this.initialize.bind(this);
+    this.backspace = this.backspace.bind(this);
     this.handleNumbers = this.handleNumbers.bind(this);
     this.handleOperators = this.handleOperators.bind(this);
-    this.handleDecimal = this.handleDecimal.bind(this);
+    this.decimal = this.decimal.bind(this);
     this.digitLimit = this.digitLimit.bind(this);
+    this.calculate = this.calculate.bind(this);
   }
   
     initialize() {
@@ -24,12 +26,29 @@ class Calculator extends React.Component {
       });
     }
     
+    backspace() {
+      this.setState ({
+        inputValue: this.state.inputValue.slice(0, -1)
+      });
+    }
+    
     digitLimit() {
       this.setState ({
         inputValue: 'Exceed digit limit',
         prevVal: this.state.inputValue
       });
       setTimeout(() => this.setState({inputValue: this.state.prevVal}), 1000);
+    }
+    
+    calculate() {
+      if(!this.state.inputValue.length > 16) {
+        let result = Math.round(1000000000000 * eval(this.state.formula)) / 1000000000000;
+        this.setState ({
+        inputValue: result.toString(),
+        formula: this.state.formula + "=" + result,
+        prevVal: result  
+        });
+      }
     }
   
     handleNumbers(e) {
@@ -43,7 +62,8 @@ class Calculator extends React.Component {
       }
       
       this.setState ({
-        inputValue: this.state.inputValue + e.target.value
+        inputValue: this.state.inputValue + e.target.value,
+        
       })
     }
   
@@ -55,7 +75,7 @@ class Calculator extends React.Component {
           
     }
   
-    handleDecimal(e) {
+    decimal(e) {
       
     } 
   
@@ -68,7 +88,7 @@ class Calculator extends React.Component {
            <FormulaScreen formula={this.state.formula.replace(/x/g, '·')} />
            <OutputScreen currentValue={this.state.inputValue} />
            </div>
-           <Buttons numbers={this.handleNumbers} operators={this.handleOperators} initialize={this.initialize}>
+           <Buttons numbers={this.handleNumbers} operators={this.handleOperators} initialize={this.initialize} calculate={this.calculate} backspace={this.backspace} decimal={this.decimal}>
              
            </Buttons>
         </div>
@@ -81,24 +101,24 @@ class Buttons extends React.Component {
   render () {
     return (
       <div>
-        <button id="clear" value="CE" className="clearBtn">CE</button>
+        <button id="clear" value="CE" className="clearBtn" onClick={this.props.backspace}>CE</button>
         <button id="clear" value="C" className="clearBtn" onClick={this.props.initialize}>C</button>
         <button id="divide" value="/" onClick={this.props.operators}>/</button>
         <button id="seven" value="7" onClick={this.props.numbers}>7</button>
         <button id="eight" value="8" onClick={this.props.numbers}>8</button>
         <button id="nine" value="9" onClick={this.props.numbers}>9</button>
-        <button id="multiply" value="x" nClick={this.props.operators}>x</button>
+        <button id="multiply" value="x" onClick={this.props.operators}>x</button>
         <button id="four" value="4" onClick={this.props.numbers}>4</button>
         <button id="five" value="5" onClick={this.props.numbers}>5</button>
         <button id="six" value="6" onClick={this.props.numbers}>6</button>
-        <button id="subtract" value="-" nClick={this.props.operators}>-</button>
+        <button id="subtract" value="-" onClick={this.props.operators}>-</button>
         <button id="one" value="1" onClick={this.props.numbers}>1</button>         
         <button id="two" value="2" onClick={this.props.numbers}>2</button>
         <button id="three" value="3" onClick={this.props.numbers}>3</button>
-        <button id="add" value="+" nClick={this.props.operators}>+</button>
+        <button id="add" value="+" onClick={this.props.operators}>+</button>
         <button id="zero" value="0" onClick={this.props.numbers}>0</button>
-        <button id="decimal" value=".">.</button>
-        <button id="equals" value="=" className="equalBtn" nClick={this.props.operators}>=</button>   
+        <button id="decimal" value="." onClick={this.props.decimal}>.</button>
+        <button id="equals" value="=" className="equalBtn" onClick={this.props.calculate}>=</button>   
       </div>
     )
   }
