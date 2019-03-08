@@ -28,7 +28,8 @@ class Calculator extends React.Component {
     
     backspace() {
       this.setState ({
-        inputValue: this.state.inputValue.slice(0, -1)
+        inputValue: this.state.inputValue.slice(0, -1),
+        formula: this.state.inputValue.slice(0, -1)
       });
     }
     
@@ -46,7 +47,7 @@ class Calculator extends React.Component {
         this.setState ({
         inputValue: result.toString(),
         formula: this.state.formula + "=" + result,
-        prevVal: result  
+        prevVal: result,
         });
       }
     }
@@ -54,29 +55,57 @@ class Calculator extends React.Component {
     handleNumbers(e) {
       if(this.state.inputValue.length > 16) {
         this.digitLimit();
-      } else { 
+      } else if(this.state.inputValue === '0') {
           this.setState ({
           inputValue: e.target.value,
-          formula: e.target.value != '0' ? e.target.value : ''
+          formula: this.state.formula + e.target.value
         });
-      }
-      
-      this.setState ({
-        inputValue: this.state.inputValue + e.target.value,
-        
-      })
+      } else {
+          this.setState ({
+            inputValue: this.state.inputValue + e.target.value,
+            formula: this.state.formula + e.target.value
+        });
+      } 
     }
   
     handleOperators(e) {
-      
+      if(!this.state.inputValue.length > 16) {
         this.setState ({
           inputValue: e.target.value
         });
+        if(this.state.formula.includes('=')) {
+          this.setState ({
+            formula: this.state.prevVal + e.target.value
+          });
+        }
+        else {
+          this.setState ({
+            prevVal: this.state.prevVal,
+            formula: this.state.formula += e.target.value
+          });
+        }
+      }
+        
           
     }
   
-    decimal(e) {
-      
+    decimal() {
+      if(this.state.inputValue.includes('.')) {
+        return;
+      }
+      if(this.state.inputValue.length > 16) {
+        this.digitLimit();
+      }else if((/[x+‑/]$/).test(this.state.formula) || this.state.inputValue == '0' && this.state.formula === '') {
+        this.setState ({
+          inputValue: '0.',
+          formula: this.state.formula + '0.'
+        });
+      } else {
+        this.setState({
+          inputValue: this.state.formula.match(/(-?\d+\.?\d*)$/)[0] + '.',
+          formula: this.state.formula + '.'
+        });
+      }
     } 
   
   render () {
