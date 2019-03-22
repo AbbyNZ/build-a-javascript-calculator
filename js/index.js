@@ -1,104 +1,174 @@
-var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}function _possibleConstructorReturn(self, call) {if (!self) {throw new ReferenceError("this hasn't been initialised - super() hasn't been called");}return call && (typeof call === "object" || typeof call === "function") ? call : self;}function _inherits(subClass, superClass) {if (typeof superClass !== "function" && superClass !== null) {throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);}subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;}var Calculator = function (_React$Component) {_inherits(Calculator, _React$Component);
-  function Calculator(props) {_classCallCheck(this, Calculator);var _this = _possibleConstructorReturn(this, (Calculator.__proto__ || Object.getPrototypeOf(Calculator)).call(this,
-    props));
+const cOperator = /[*/+-]/;
 
-    _this.state = {
+class Calculator extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
       inputValue: '0',
-      prevVal: '0',
+      prevValue: '0',
       formula: '' };
 
 
-    _this.initialize = _this.initialize.bind(_this);
-    _this.handleNumbers = _this.handleNumbers(_this);
-    _this.handleOperators = _this.handleOperators(_this);return _this;
-  }_createClass(Calculator, [{ key: 'initialize', value: function initialize()
+    this.initialize = this.initialize.bind(this);
+    this.backspace = this.backspace.bind(this);
+    this.handleNumbers = this.handleNumbers.bind(this);
+    this.handleOperators = this.handleOperators.bind(this);
+    this.decimal = this.decimal.bind(this);
+    this.digitLimit = this.digitLimit.bind(this);
+    this.calculate = this.calculate.bind(this);
+  }
 
+  initialize() {
+    this.setState({
+      inputValue: '0',
+      prevValue: '0',
+      formula: '' });
+
+  }
+
+  backspace() {
+    this.setState({
+      inputValue: this.state.inputValue.slice(0, -1),
+      formula: this.state.inputValue.slice(0, -1) });
+
+  }
+
+  digitLimit() {
+    this.setState({
+      inputValue: 'Exceed digit limit',
+      prevValue: this.state.inputValue });
+
+    setTimeout(() => this.setState({ inputValue: this.state.prevVal }), 1000);
+  }
+
+  calculate() {
+    if (/[*/+-]$/.test(this.state.formula))
+    this.state.formula = this.state.formula.slice(0, -1);
+
+    let result = Math.round(1000000000000 * eval(this.state.formula)) / 1000000000000;
+    this.setState({
+      inputValue: result,
+      formula: this.state.formula + "=" + result,
+      prevValue: result });
+
+  }
+
+  handleNumbers(e) {
+    if (this.state.inputValue.length > 16) {
+      this.digitLimit();
+    } else
+    if (this.state.formula.includes('=')) {
+      this.setState({
+        inputValue: e.target.value,
+        formula: e.target.value != '0' ? e.target.value : '' });
+
+    } else
     {
       this.setState({
-        inputValue: '0',
-        prevVal: '0',
-        formula: '',
-        lastClicked: '' });
+        inputValue: this.state.inputValue == '0' || cOperator.test(this.state.inputValue) ? e.target.value : this.state.inputValue + e.target.value,
+        formula: this.state.formula == '0' && e.target.value == '0' ? this.state.formula : /([^.0-9]0)$/.test(this.state.formula) ? this.state.formula.slice(0, -1) + e.target.value : this.state.formula + e.target.value });
 
-    } }, { key: 'handleNumbers', value: function handleNumbers(
+    }
+  }
 
-    e) {
-      if (this.state === true) {
+  handleOperators(e) {
+    if (this.state.inputValue.length > 16) {
+      this.digitLimit();
+    } else
+    if (this.state.formula.includes('=')) {
+      this.setState({
+        formula: this.state.prevValue + e.target.value });
+
+    } else {
+      this.setState({
+        inputValue: e.target.value,
+        prevValue: !cOperator.test(this.state.inputValue) ?
+        this.state.formula : this.state.prevValue,
+        formula: !cOperator.test(this.state.inputValue) ?
+        this.state.formula += e.target.value :
+        this.state.prevValue += e.target.value });
+
+    }
+  }
+
+  decimal() {
+    if (!/\./.test(this.state.inputValue)) {
+      this.setState({
+        inputValue: '0.',
+        formula: '0.' });
+
+      if (this.state.inputValue.length > 16) {
+        this.digitLimit();
+      } else
+      if (/[*+‑/]$/.test(this.state.formula) || this.state.inputValue == '0' && this.state.formula === '') {
         this.setState({
-          inputValue: e.target.value,
-          formula: e.target.value != '0' ? e.target.value : '' });
+          inputValue: '0.',
+          formula: this.state.formula + '0.' });
+
+      } else {
+        this.setState({
+          inputValue: this.state.formula.match(/(-?\d+\.?\d*)$/)[0] + '.',
+          formula: this.state.formula + '.' });
 
       }
-    } }, { key: 'handleOperators', value: function handleOperators(
+    }
+  }
 
-    e) {
-      if (this.state === true) {
-        this.setState({
-          inputValue: e.target.value });
+  render() {
+    return (
+      React.createElement("div", null,
+      React.createElement("div", { className: "title" }, React.createElement("h1", null, "JavaScript Calculator")),
+      React.createElement("div", { className: "calculator" },
+      React.createElement("div", { className: "displayScreen" },
+      React.createElement(FormulaScreen, { formula: this.state.formula }),
+      React.createElement(OutputScreen, { currentValue: this.state.inputValue })),
 
-      }
-
-    } }, { key: 'render', value: function render()
-
-    {
-      return (
-        React.createElement('div', null,
-          React.createElement('div', { className: 'title' }, React.createElement('h1', null, 'JavaScript Calculator')),
-          React.createElement('div', { className: 'calculator' },
-            React.createElement('div', { className: 'displayScreen' },
-              React.createElement(FormulaScreen, { formula: this.state.formula.replace(/x/g, '.') }),
-              React.createElement(OutputScreen, { currentValue: this.state.inputValue })),
-
-            React.createElement(Buttons, { initialize: this.initialize, numbers: this.handleNumbers, operators: this.handleOperators }))));
+      React.createElement(Buttons, { initialize: this.initialize, numbers: this.handleNumbers, operators: this.handleOperators, calculate: this.calculate, backspace: this.backspace, decimal: this.decimal }))));
+  }}
 
 
+class Buttons extends React.Component {
+  render() {
+    return (
+      React.createElement("div", null,
+      React.createElement("button", { id: "clearEntry", value: "CE", className: "clearBtn", onClick: this.props.backspace }, "CE"),
+      React.createElement("button", { id: "clear", value: "C", className: "clearBtn", onClick: this.props.initialize }, "C"),
+      React.createElement("button", { id: "divide", value: "/", onClick: this.props.operators }, "/"),
+      React.createElement("button", { id: "seven", value: "7", onClick: this.props.numbers }, "7"),
+      React.createElement("button", { id: "eight", value: "8", onClick: this.props.numbers }, "8"),
+      React.createElement("button", { id: "nine", value: "9", onClick: this.props.numbers }, "9"),
+      React.createElement("button", { id: "multiply", value: "*", onClick: this.props.operators }, "x"),
+      React.createElement("button", { id: "four", value: "4", onClick: this.props.numbers }, "4"),
+      React.createElement("button", { id: "five", value: "5", onClick: this.props.numbers }, "5"),
+      React.createElement("button", { id: "six", value: "6", onClick: this.props.numbers }, "6"),
+      React.createElement("button", { id: "subtract", value: "-", onClick: this.props.operators }, "-"),
+      React.createElement("button", { id: "one", value: "1", onClick: this.props.numbers }, "1"),
+      React.createElement("button", { id: "two", value: "2", onClick: this.props.numbers }, "2"),
+      React.createElement("button", { id: "three", value: "3", onClick: this.props.numbers }, "3"),
+      React.createElement("button", { id: "add", value: "+", onClick: this.props.operators }, "+"),
+      React.createElement("button", { id: "zero", value: "0", onClick: this.props.numbers }, "0"),
+      React.createElement("button", { id: "decimal", value: ".", onClick: this.props.decimal }, "."),
+      React.createElement("button", { id: "equals", value: "=", className: "equalBtn", onClick: this.props.calculate }, "=")));
 
 
-
-    } }]);return Calculator;}(React.Component);var
-
-
-Buttons = function (_React$Component2) {_inherits(Buttons, _React$Component2);function Buttons() {_classCallCheck(this, Buttons);return _possibleConstructorReturn(this, (Buttons.__proto__ || Object.getPrototypeOf(Buttons)).apply(this, arguments));}_createClass(Buttons, [{ key: 'render', value: function render()
-    {
-      return (
-        React.createElement('div', null,
-          React.createElement('button', { id: 'clear', value: 'CE', className: 'clearBtn' }, 'CE'),
-          React.createElement('button', { id: 'clear', value: 'C', className: 'clearBtn', onClick: this.props.initialize }, 'C'),
-          React.createElement('button', { id: 'divide', value: '/', onClick: this.props.operators }, '/'),
-          React.createElement('button', { id: 'seven', value: '7', onClick: this.props.numbers }, '7'),
-          React.createElement('button', { id: 'eight', value: '8', onClick: this.props.numbers }, '8'),
-          React.createElement('button', { id: 'nine', value: '9', onClick: this.props.numbers }, '9'),
-          React.createElement('button', { id: 'multiply', value: 'x', nClick: this.props.operators }, 'x'),
-          React.createElement('button', { id: 'four', value: '4', onClick: this.props.numbers }, '4'),
-          React.createElement('button', { id: 'five', value: '5', onClick: this.props.numbers }, '5'),
-          React.createElement('button', { id: 'six', value: '6', onClick: this.props.numbers }, '6'),
-          React.createElement('button', { id: 'subtract', value: '-', nClick: this.props.operators }, '-'),
-          React.createElement('button', { id: 'one', value: '1', onClick: this.props.numbers }, '1'),
-          React.createElement('button', { id: 'two', value: '2', onClick: this.props.numbers }, '2'),
-          React.createElement('button', { id: 'three', value: '3', onClick: this.props.numbers }, '3'),
-          React.createElement('button', { id: 'add', value: '+', nClick: this.props.operators }, '+'),
-          React.createElement('button', { id: 'zero', value: '0', onClick: this.props.numbers }, '0'),
-          React.createElement('button', { id: 'decimal', value: '.' }, '.'),
-          React.createElement('button', { id: 'equals', value: '=', className: 'equalBtn', nClick: this.props.operators }, '=')));
+  }}
 
 
-    } }]);return Buttons;}(React.Component);var
+class OutputScreen extends React.Component {
+  render() {
+    return (
+      React.createElement("div", { id: "display" }, this.props.currentValue));
+
+  }}
 
 
-OutputScreen = function (_React$Component3) {_inherits(OutputScreen, _React$Component3);function OutputScreen() {_classCallCheck(this, OutputScreen);return _possibleConstructorReturn(this, (OutputScreen.__proto__ || Object.getPrototypeOf(OutputScreen)).apply(this, arguments));}_createClass(OutputScreen, [{ key: 'render', value: function render()
-    {
-      return (
-        React.createElement('div', { id: 'display' }, this.props.currentValue));
+class FormulaScreen extends React.Component {
+  render() {
+    return (
+      React.createElement("div", { className: "formulaDisplay" }, this.props.formula));
 
-    } }]);return OutputScreen;}(React.Component);var
-
-
-FormulaScreen = function (_React$Component4) {_inherits(FormulaScreen, _React$Component4);function FormulaScreen() {_classCallCheck(this, FormulaScreen);return _possibleConstructorReturn(this, (FormulaScreen.__proto__ || Object.getPrototypeOf(FormulaScreen)).apply(this, arguments));}_createClass(FormulaScreen, [{ key: 'render', value: function render()
-    {
-      return (
-        React.createElement('div', { className: 'formulaDisplay' }, this.props.formula));
-
-    } }]);return FormulaScreen;}(React.Component);
+  }}
 
 
-ReactDOM.render(React.createElement(Calculator, null), document.getElementById('app'));
+ReactDOM.render(React.createElement(Calculator, null), document.getElementById('app'));'));
