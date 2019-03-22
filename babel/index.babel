@@ -1,10 +1,12 @@
+const cOperator = /[*/+-]/;
+
 class Calculator extends React.Component {
   constructor(props) {
     super(props);
     
     this.state = {
       inputValue: '0',
-      prevVal: '0',
+      prevValue: '0',
       formula: ''
     };
     
@@ -20,9 +22,8 @@ class Calculator extends React.Component {
     initialize() {
       this.setState ({
         inputValue: '0',
-        prevVal: '0',
+        prevValue: '0',
         formula: '',
-        lastClicked: ''
       });
     }
     
@@ -36,69 +37,74 @@ class Calculator extends React.Component {
     digitLimit() {
       this.setState ({
         inputValue: 'Exceed digit limit',
-        prevVal: this.state.inputValue
+        prevValue: this.state.inputValue
       });
       setTimeout(() => this.setState({inputValue: this.state.prevVal}), 1000);
     }
     
     calculate() {
-      if(!this.state.inputValue.length > 16) {
+      if((/[*/+-]$/).test(this.state.formula)) 
+        this.state.formula = this.state.formula.slice(0, -1);
+        
         let result = Math.round(1000000000000 * eval(this.state.formula)) / 1000000000000;
         this.setState ({
-        inputValue: result.toString(),
-        formula: this.state.formula + "=" + result,
-        prevVal: result,
+          inputValue: result,
+          formula: this.state.formula + "=" + result,
+          prevValue: result
         });
-      }
     }
   
     handleNumbers(e) {
       if(this.state.inputValue.length > 16) {
         this.digitLimit();
-      } else if(this.state.inputValue === '0') {
+      } 
+      else if(this.state.formula.includes('=')) {
           this.setState ({
           inputValue: e.target.value,
-          formula: this.state.formula + e.target.value
+          formula: e.target.value != '0' ? e.target.value : '' 
         });
-      } else {
+      }
+      else {
           this.setState ({
-            inputValue: this.state.inputValue + e.target.value,
-            formula: this.state.formula + e.target.value
+            inputValue: this.state.inputValue == '0' || cOperator.test(this.state.inputValue) ? e.target.value : this.state.inputValue + e.target.value,
+            formula: this.state.formula == '0' && e.target.value =='0' ? this.state.formula : /([^.0-9]0)$/.test(this.state.formula) ? this.state.formula.slice(0, -1) + e.target.value : this.state.formula + e.target.value
         });
       } 
     }
   
     handleOperators(e) {
-      if(!this.state.inputValue.length > 16) {
-        this.setState ({
-          inputValue: e.target.value
-        });
-        if(this.state.formula.includes('=')) {
-          this.setState ({
-            formula: this.state.prevVal + e.target.value
-          });
-        }
-        else {
-          this.setState ({
-            prevVal: this.state.prevVal,
-            formula: this.state.formula += e.target.value
-          });
-        }
-      }
-        
-          
-    }
-  
-    decimal() {
-      if(this.state.inputValue.includes('.')) {
-        return;
-      }
       if(this.state.inputValue.length > 16) {
         this.digitLimit();
-      }else if((/[x+‑/]$/).test(this.state.formula) || this.state.inputValue == '0' && this.state.formula === '') {
+      }
+      else if(this.state.formula.includes('=')) {
         this.setState ({
+           formula: this.state.prevValue + e.target.value
+        });
+      } else {
+          this.setState ({
+            inputValue: e.target.value,
+            prevValue: !cOperator.test(this.state.inputValue) ? 
+              this.state.formula : this.state.prevValue,
+            formula: !cOperator.test(this.state.inputValue) ? 
+              this.state.formula += e.target.value : 
+              this.state.prevValue += e.target.value
+          });
+         }
+      }
+  
+    decimal() {
+      if(!/\./.test(this.state.inputValue)) {
+        this.setState({
           inputValue: '0.',
-          formula: this.state.formula + '0.'
+          formula: '0.'
+      });
+        if(this.state.inputValue.length > 16) {
+          this.digitLimit();
+        } 
+        else if((/[*+‑/]$/).test(this.state.formula) || this.state.inputValue == '0' && this.state.formula === '') {
+          this.setState ({
+            inputValue: '0.',
+            formula: this.state.formula + '0.'
         });
       } else {
         this.setState({
@@ -106,6 +112,7 @@ class Calculator extends React.Component {
           formula: this.state.formula + '.'
         });
       }
+     }
     } 
   
   render () {
@@ -114,10 +121,10 @@ class Calculator extends React.Component {
          <div className="title"><h1>JavaScript Calculator</h1></div>
          <div className="calculator">
           <div className="displayScreen">
-           <FormulaScreen formula={this.state.formula.replace(/x/g, '·')} />
+           <FormulaScreen formula={this.state.formula} />
            <OutputScreen currentValue={this.state.inputValue} />
            </div>
-           <Buttons numbers={this.handleNumbers} operators={this.handleOperators} initialize={this.initialize} calculate={this.calculate} backspace={this.backspace} decimal={this.decimal}>
+           <Buttons initialize={this.initialize} numbers={this.handleNumbers} operators={this.handleOperators} calculate={this.calculate} backspace={this.backspace} decimal={this.decimal}>
              
            </Buttons>
         </div>
@@ -130,13 +137,13 @@ class Buttons extends React.Component {
   render () {
     return (
       <div>
-        <button id="clear" value="CE" className="clearBtn" onClick={this.props.backspace}>CE</button>
+        <button id="clearEntry" value="CE" className="clearBtn" onClick={this.props.backspace}>CE</button>
         <button id="clear" value="C" className="clearBtn" onClick={this.props.initialize}>C</button>
         <button id="divide" value="/" onClick={this.props.operators}>/</button>
         <button id="seven" value="7" onClick={this.props.numbers}>7</button>
         <button id="eight" value="8" onClick={this.props.numbers}>8</button>
         <button id="nine" value="9" onClick={this.props.numbers}>9</button>
-        <button id="multiply" value="x" onClick={this.props.operators}>x</button>
+        <button id="multiply" value="*" onClick={this.props.operators}>x</button>
         <button id="four" value="4" onClick={this.props.numbers}>4</button>
         <button id="five" value="5" onClick={this.props.numbers}>5</button>
         <button id="six" value="6" onClick={this.props.numbers}>6</button>
