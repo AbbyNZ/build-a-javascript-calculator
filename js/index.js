@@ -78,6 +78,7 @@ class Calculator extends React.Component {
     } else
     if (this.state.formula.includes('=')) {
       this.setState({
+        inputValue: e.target.value,
         formula: this.state.prevValue + e.target.value });
 
     } else {
@@ -125,6 +126,11 @@ class Calculator extends React.Component {
       React.createElement(OutputScreen, { currentValue: this.state.inputValue })),
 
       React.createElement(Buttons, { initialize: this.initialize, numbers: this.handleNumbers, operators: this.handleOperators, calculate: this.calculate, backspace: this.backspace, decimal: this.decimal }))));
+
+
+
+
+
   }}
 
 
@@ -171,4 +177,4 @@ class FormulaScreen extends React.Component {
   }}
 
 
-ReactDOM.render(React.createElement(Calculator, null), document.getElementById('app'));'));
+ReactDOM.render(React.createElement(Calculator, null), document.getElementById('app'));
