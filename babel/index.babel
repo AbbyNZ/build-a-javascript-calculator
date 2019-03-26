@@ -78,7 +78,8 @@ class Calculator extends React.Component {
       }
       else if(this.state.formula.includes('=')) {
         this.setState ({
-           formula: this.state.prevValue + e.target.value
+          inputValue: e.target.value,
+          formula: this.state.prevValue + e.target.value
         });
       } else {
           this.setState ({
